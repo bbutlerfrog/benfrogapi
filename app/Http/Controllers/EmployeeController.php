@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 use App\Employees;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+
 
 /**
  * Class for accessing all Department and Employee data
@@ -16,14 +18,13 @@ class EmployeeController extends Controller
      *
      * @return array
      */
-    public function show() 
+    public function show(Request $request) 
     {
         if ($request->has('deptno')) {
             $deptNo = $request->input('deptno');
-            if ($request->has($startend)) {
-                $startEnd = explode(',', $request('startend'));
-                $start = $startend[0];
-                $end = $startend[1];
+            if ($request->has($start)) {
+                $start = $request->input('start');
+                $end = $request->input('end');
                 return $this->employeesByDept($deptNo, $start, $end);
             } else {
                 return $this->employeesByDept($deptNo); 
