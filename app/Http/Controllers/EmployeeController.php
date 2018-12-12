@@ -22,7 +22,7 @@ class EmployeeController extends Controller
     {
         if ($request->has('deptno')) {
             $deptNo = $request->input('deptno');
-            if ($request->has($start)) {
+            if ($request->has('start')) {
                 $start = $request->input('start');
                 $end = $request->input('end');
                 return $this->employeesByDept($deptNo, $start, $end);
