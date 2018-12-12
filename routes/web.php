@@ -14,9 +14,7 @@ use App\Http\Controllers\EmployeeController;
 */
 
 $router->post('/auth/login', 'AuthController@postLogin');
-$router->group(['middleware' => 'jwt-auth'], function () use ($router) {
-    $router->get('/employees', 'EmployeeController@show');
-});
+$router->get('/employees', 'EmployeeController@show');
 
 
 
