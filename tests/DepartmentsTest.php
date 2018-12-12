@@ -9,7 +9,7 @@ class DepartmentsTest extends TestCase
 {
     /**
      * Get all departments
-     * (/employees [POST])
+     * (/employees [GET])
      *
      * @return void
      */
