@@ -16,7 +16,7 @@ class DepartmentsTest extends TestCase
     public function testGetDepartments()
     {
         $user = factory('App\User')->create();
-        $response = $this->apiAs($user, 'POST', '/employees');
+        $response = $this->apiAs($user, 'GET', '/employees');
         $this->seeStatusCode(200);
         $this->seeJsonStructure(
             [[
