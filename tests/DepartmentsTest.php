@@ -8,15 +8,21 @@ use App\User;
 class DepartmentsTest extends TestCase
 {
     /**
-     * A basic test example.
+     * Get all departments
+     * (/employees [POST])
      *
      * @return void
      */
     public function testGetDepartments()
     {
-        $user = factory('\App\User')->create();
-        $response = $this->actingAs($user)
-            ->call('POST', '/employees');
-        $this->assertEquals (200, $response->status());
+        $user = factory('App\User')->create();
+        $response = $this->apiAs($user, 'POST', '/employees');
+        $this->seeStatusCode(200);
+        $this->seeJsonStructure(
+            [[
+                'dept_no',
+                'dept_name'
+            ]]
+        );
     }
 }
