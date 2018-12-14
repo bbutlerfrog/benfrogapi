@@ -15,6 +15,7 @@ use App\Http\Controllers\EmployeeController;
 
 $router->post('/auth/login', 'AuthController@postLogin');
 $router->get('/employees', 'EmployeeController@show');
+$router->get('/departments', 'DepartmentController@show');
 
 
 
