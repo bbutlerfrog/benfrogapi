@@ -19,24 +19,18 @@ class EmployeeController extends Controller
      */
     public function show(Request $request) 
     {
+        $start = $request->input('start');
+        $end = $request->input('end');
+        $sortDirection = $request->input('sortDirection');
+        $sortParameter = $request->input('sortParameter');
         if ($request->has('filter')) {
-            $result = $this->getEmployees($start, $end, $sortDirection, $sortParameter, $filter);
+            $filter = $request->input('filter');
+            $result = $this->getEmployees($start, $end, $sortDirection, $sortParameter, $filter); 
         } 
         else {
-            //set defaults then override them
-            $start = 0;
-            $start = $request->input('start');
-            $end = 10;
-            $sortDirection = 'asc';
-            $sortParameter = 'emp_no';
             $result = $this->getEmployees($start, $end, $sortDirection, $sortParameter); 
         }
-        $resultCount = count($result);
-        $return = array(
-            'total_count' => $resultCount,
-            'items' => $result
-        );
-        return $return;
+        return $result;
     }
 
     /**
@@ -45,13 +39,12 @@ class EmployeeController extends Controller
      * @param int $end end for LIMIT statement
      * @param string $sortDirection 
      * @param string $sortParameter
-     * @param $filter (optional) filter to use in WHERE clause
+     * @param $filter 
      *
      * @return array
      */
     private function getEmployees($start, $end, $sortDirection, $sortParameter, $filter = '' )
     {
-           
         //do a switch here to avoid passing in any raw input
         //(we can build these queries dynamically, but it's about the same amount of work)
         switch ($sortParameter) {
@@ -89,17 +82,17 @@ class EmployeeController extends Controller
         
         //prepare a LIKE parameter for the filter variable
         $likeFilter = "%$filter%";
-
         $employees = DB::select(
-            "SELECT e.emp_no,  first_name, last_name, DATE_FORMAT(birth_date, '%M %e, %Y') AS birth_date, gender, 
+            "SELECT e.emp_no,  
+            first_name, last_name, DATE_FORMAT(birth_date, '%M %e, %Y') AS birth_date, gender, 
             DATE_FORMAT(from_date, '%M %e, %Y') AS hire_date
             FROM employees e INNER JOIN dept_emp de ON e.emp_no = de.emp_no
             INNER JOIN departments d ON de.dept_no = d.dept_no  
             WHERE d.dept_no LIKE :filter1 OR
             last_name LIKE :filter2 OR
             first_name LIKE :filter3 OR
-            birth_date LIKE :filter4 OR
-            hire_date LIKE :filter5 
+            DATE_FORMAT(birth_date, '%M %e, %Y')  LIKE :filter4 OR
+            DATE_FORMAT(hire_date, '%M %e, %Y') LIKE :filter5 
             ORDER BY " . $orderBy . ' ' . $sortDirection ." LIMIT :start, :end", 
             ['filter1' => $likeFilter,
                 'filter2' => $likeFilter,
@@ -107,8 +100,28 @@ class EmployeeController extends Controller
                 'filter4' => $likeFilter,
                 'filter5' => $likeFilter, 
             'start' => intval($start), 'end' =>intval($end)]);
+        $count = DB::select(
+            "SELECT count(*) AS c   
+            FROM employees e INNER JOIN dept_emp de ON e.emp_no = de.emp_no
+            INNER JOIN departments d ON de.dept_no = d.dept_no  
+            WHERE d.dept_no LIKE :filter1 OR
+            last_name LIKE :filter2 OR
+            first_name LIKE :filter3 OR
+            DATE_FORMAT(birth_date, '%M %e, %Y')  LIKE :filter4 OR
+            DATE_FORMAT(hire_date, '%M %e, %Y') LIKE :filter5 ",
+            [
+                'filter1' => $likeFilter,
+                'filter2' => $likeFilter,
+                'filter3' => $likeFilter,
+                'filter4' => $likeFilter,
+                'filter5' => $likeFilter, ]);
+        $counts = array();
+        foreach ($count as $c) {
+            $counts['count'] = $c->c;
+        }
         
-        return $employees;    
+        return $employees;
+            
     }
 
 }
