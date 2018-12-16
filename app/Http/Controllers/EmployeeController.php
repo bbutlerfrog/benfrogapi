@@ -82,7 +82,7 @@ class EmployeeController extends Controller
         }
 
         //same basic idea here--if/else to avoid passing in raw input
-        if ($sortDirection = 'asc') {
+        if ($sortDirection == 'asc') {
             $sortDirection = 'ASC';
         } else {
             $sortDirection = 'DESC';
