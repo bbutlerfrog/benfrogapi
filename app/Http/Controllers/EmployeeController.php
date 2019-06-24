@@ -19,11 +19,14 @@ class EmployeeController extends Controller
      */
     public function show(Request $request) 
     {
-        $start = $request->input('start');
-        $end = $request->input('end');
-        $sortDirection = $request->input('sortDirection');
-        $sortParameter = $request->input('sortParameter');
-        if ($request->has('filter')) {
+        if ($request->has('details')) {
+            $employeeNumber = $request->input('employeeNumber');
+            $result = $this->getEmployeeDetails($employeeNumber);
+        } else if ($request->has('filter')) {
+            $start = $request->input('start');
+            $end = $request->input('end');
+            $sortDirection = $request->input('sortDirection');
+            $sortParameter = $request->input('sortParameter');
             $filter = $request->input('filter');
             if ($request->has('count')) {
                 $result = $this->getEmployeeCount($start, $end, $sortDirection, $sortParameter, $filter); 
@@ -148,5 +151,38 @@ class EmployeeController extends Controller
             'items' => $result
         );
         return $return;
+    }
+
+    /**
+     * Gets Detailed Information for one employee, by employee number
+     * @param int $employeeNumber
+     *
+     * @return array detailed employee information
+     */
+    private function getEmployeeDetails ($employeeNumber)
+    {
+        $result = DB::select("SELECT
+            dept_name,
+            de.from_date,
+            de.to_date,
+            salary,
+            title,
+            dm.emp_no as manager_no
+            FROM
+            departments d
+            INNER JOIN
+            dept_emp de ON d.dept_no = de.dept_no 
+            INNER JOIN
+            dept_manager  dm ON de.dept_no = dm.dept_no
+            INNER JOIN
+            salaries s  ON s.emp_no = de.emp_no
+            INNER JOIN
+            titles t ON t.emp_no = de.emp_no
+            WHERE
+            de.emp_no = :employeeNumber
+            ORDER BY de.to_date ASC
+            LIMIT 1",
+            [ 'employeeNumber' => intval($employeeNumber)]);
+        return $result;
     }
 }
